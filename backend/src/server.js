@@ -11,7 +11,7 @@ app.use(express.json());
 dotenv.config();
 
 app.get('/', (req, res) => {
-  res.send('Hello from Express & MongoDB backend!');
+  res.send('Express & MongoDB backend!');
 });
 
 // Database connection
