@@ -22,18 +22,80 @@ const AuthShell = ({ title, subtitle, children }) => (
         </div>
     </div>
 )
-
 export default function Login() {
     const { setUser } = useApp()
     const nav = useNavigate()
-    const [form, setForm] = useState({ username: '', password: '' })
-    const submit = (e) => { e.preventDefault(); setUser({ username: form.username }); nav('/admin') }
+    const [form, setForm] = useState({ email: '', password: '' })
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+
+    const loginOfficer = async (email, password) => {
+        const response = await fetch('http://localhost:5000/api/auth/officer/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Login failed');
+        }
+
+        return response.json();
+    };
+
+    const submit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        try {
+            const result = await loginOfficer(form.email, form.password);
+            setUser({ 
+                id: result.officer.id, 
+                email: result.officer.email,
+                type: 'officer' 
+            });
+            nav('/admin');
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <AuthShell title="Welcome back" subtitle="Sign in to continue">
             <form onSubmit={submit} className="space-y-3">
-                <Input label="Username" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} />
-                <Input type="password" label="Password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
-                <button className="w-full py-2 rounded-xl bg-green-600 text-white">Sign in</button>
+                {error && (
+                    <div className="text-red-600 text-sm text-center p-2 bg-red-50 rounded-xl">
+                        {error}
+                    </div>
+                )}
+                <Input 
+                    label="Email" 
+                    type="email" 
+                    value={form.email} 
+                    onChange={e => setForm({ ...form, email: e.target.value })}
+                    required 
+                />
+                <Input 
+                    type="password" 
+                    label="Password" 
+                    value={form.password} 
+                    onChange={e => setForm({ ...form, password: e.target.value })}
+                    required 
+                />
+                <button 
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-2 rounded-xl bg-green-600 text-white disabled:opacity-50"
+                >
+                    {loading ? 'Signing in...' : 'Sign in'}
+                </button>
             </form>
         </AuthShell>
     )
