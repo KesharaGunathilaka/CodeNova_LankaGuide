@@ -6,6 +6,7 @@ import Signup from "../pages/Signup";
 import Dashboard from "../pages/Dashboard";
 import AdminLayout from "../pages/admin/AdminLayout";
 import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminLogin from "../pages/admin/AdminLogin";
 import AdminAnalytics from "../pages/admin/AdminAnalytics";
 import AdminFeedbacks from "../pages/admin/AdminFeedbacks";
 import DayAppointments from "../pages/admin/DayAppointments";
@@ -36,6 +37,7 @@ export default function AppRoutes() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
+        <Route path="login" element={<AdminLogin />} />
         <Route path="analytics" element={<AdminAnalytics />} />
         <Route path="feedbacks" element={<AdminFeedbacks />} />
         <Route path="day/:date" element={<DayAppointments />} />
