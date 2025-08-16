@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.routes.js';
+import officerAuthRoutes from "./routes/officerAuth.routes.js";
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -28,8 +29,10 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter);
 
-// Routes
+// User Routes
 app.use('/api/auth', authRoutes);
+// Officer auth routes
+app.use("/api/auth/officer", officerAuthRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ ok: true }));
