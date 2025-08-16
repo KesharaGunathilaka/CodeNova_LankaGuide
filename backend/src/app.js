@@ -5,7 +5,10 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.routes.js';
 import officerAuthRoutes from "./routes/officerAuth.routes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
+import morgan from "morgan";
 import { notFound, errorHandler } from './middleware/errorHandler.js';
+
 
 const app = express();
 
@@ -13,6 +16,7 @@ const app = express();
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
+app.use(morgan("dev"));
 
 // CORS (adjust as needed)
 app.use(
@@ -33,6 +37,8 @@ app.use('/api/', apiLimiter);
 app.use('/api/auth', authRoutes);
 // Officer auth routes
 app.use("/api/auth/officer", officerAuthRoutes);
+
+app.use("/api/bookings", bookingRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ ok: true }));
