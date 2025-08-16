@@ -6,6 +6,9 @@ import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.routes.js';
 import officerAuthRoutes from "./routes/officerAuth.routes.js";
 import { notFound, errorHandler } from './middleware/errorHandler.js';
+import departmentRoutes from './routes/department.routes.js';
+import serviceRoutes from './routes/service.routes.js';
+
 
 const app = express();
 
@@ -31,6 +34,8 @@ app.use('/api/', apiLimiter);
 
 // User Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/department', departmentRoutes);
+app.use('/api/services', serviceRoutes)
 // Officer auth routes
 app.use("/api/auth/officer", officerAuthRoutes);
 

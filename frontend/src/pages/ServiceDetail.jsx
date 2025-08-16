@@ -53,14 +53,7 @@ const FileDrop = ({ label, onFile }) => {
   const ref = useRef();
   const pick = () => ref.current?.click();
   const handle = (f) => {
-    if (f && f[0]) {
-      const file = f[0];
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        onFile({ name: file.name, size: file.size, dataUrl: e.target.result });
-      };
-      reader.readAsDataURL(file);
-    }
+    if (f && f[0]) onFile({ name: f[0].name, size: f[0].size });
   };
   return (
     <div
