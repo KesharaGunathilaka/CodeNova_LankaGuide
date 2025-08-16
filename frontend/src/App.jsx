@@ -1,14 +1,15 @@
-import { useState } from 'react'
+import React from 'react'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
+import AppRoutes from './routes/AppRoutes'
+import { AppProvider } from './utils/appContext'
 
-
-
-function App() {
-
+export default function App(){
   return (
-    <>
-      <p className='italic'>hello worlds</p>
-    </>
+    <AppProvider>
+      <Navbar/>
+      <AppRoutes/>
+      <Footer/>
+    </AppProvider>
   )
 }
-
-export default App
