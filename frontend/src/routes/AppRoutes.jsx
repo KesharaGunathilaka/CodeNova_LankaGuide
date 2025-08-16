@@ -4,6 +4,11 @@ import Landing from "../pages/Landing";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import Dashboard from "../pages/Dashboard";
+import AdminLayout from "../pages/admin/AdminLayout";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminAnalytics from "../pages/admin/AdminAnalytics";
+import AdminFeedbacks from "../pages/admin/AdminFeedbacks";
+import DayAppointments from "../pages/admin/DayAppointments";
 import DepartmentsIndex from "../pages/Departments";
 import DepartmentDetail from "../pages/DepartmentDetail";
 import WorkingVisaExtension from "../pages/ServiceDetail";
@@ -29,6 +34,12 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="analytics" element={<AdminAnalytics />} />
+        <Route path="feedbacks" element={<AdminFeedbacks />} />
+        <Route path="day/:date" element={<DayAppointments />} />
+      </Route>
       <Route path="/departments" element={<DepartmentsIndex />} />
       <Route path="/departments/:id" element={<DepartmentDetail />} />
       <Route path="/appointments/:id" element={<AppointmentDetail />} />

@@ -1,12 +1,20 @@
 import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useApp } from "../utils/appContext";
 import { formatDate } from "../utils/helpers";
 
 export default function AppointmentDetail() {
   const { id } = useParams();
   const nav = useNavigate();
-  const { appointments, updateAppointment, addNotification } = useApp();
+  const {
+    appointments,
+    updateAppointment,
+    addFeedback,
+    addNotification,
+    addAdminNotification,
+  } = useApp();
+  const location = useLocation();
+  const isAdminView = new URLSearchParams(location.search).get("admin") === "1";
   const appt = appointments.find((a) => a.id === id);
 
   if (!appt)
@@ -24,6 +32,35 @@ export default function AppointmentDetail() {
 
   const meta = appt.meta || {};
 
+  const FileItem = ({ file, label }) => {
+    if (!file) return null;
+    const href = file.url || file.dataUrl || null; // demo: ServiceDetail only stores name/size
+    return (
+      <div className="flex items-center justify-between p-2 border rounded-lg">
+        <div className="text-sm">
+          <div className="font-medium">{label}</div>
+          <div className="text-xs text-gray-500">
+            {file.name}{" "}
+            {file.size ? `• ${Math.round(file.size / 1024)} KB` : ""}
+          </div>
+        </div>
+        {href ? (
+          <a
+            href={href}
+            download={file.name}
+            className="text-blue-600 underline text-sm"
+          >
+            Download
+          </a>
+        ) : (
+          <div className="text-xs text-gray-500">
+            Preview not available in demo
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const isUpcoming = new Date(appt.datetime) > new Date();
 
   const statuses = isUpcoming
@@ -36,6 +73,17 @@ export default function AppointmentDetail() {
         "Successfully Completed",
         "Unsuccessfully Completed",
       ];
+
+  // only admins can change appointment status in this demo
+  const canAdvance = (() => {
+    const cur = (appt.status || "Submitted").toLowerCase();
+    // no next step for final completed states
+    if (cur.includes("success") || cur.includes("unsuccess")) return false;
+    // if upcoming and already 'ready', don't allow advancing to completed
+    if (isUpcoming && cur === "ready") return false;
+    // only admin view may advance statuses
+    return isAdminView === true;
+  })();
 
   const onAdvance = () => {
     const cur = appt.status || "Submitted";
@@ -57,6 +105,19 @@ export default function AppointmentDetail() {
           appt.datetime
         ).toLocaleString()}`
       );
+      if (
+        isAdminView &&
+        cur.toLowerCase() === "submitted" &&
+        next.toLowerCase() === "accepted"
+      ) {
+        addAdminNotification(
+          `Appointment accepted — ${appt.title} on ${new Date(
+            appt.datetime
+          ).toLocaleString()}`
+        );
+        // after admin accepts, send them back to admin dashboard
+        setTimeout(() => nav("/admin"), 150);
+      }
     }
   };
 
@@ -122,6 +183,28 @@ export default function AppointmentDetail() {
                 {meta.date ? `${meta.date} ${meta.time || ""}` : "-"}
               </span>
             </div>
+            <div className="mt-3">
+              <div className="font-medium mb-2">Documents</div>
+              <div className="space-y-2">
+                {meta.photo || meta.employerLetter ? (
+                  <>
+                    {meta.photo && (
+                      <FileItem file={meta.photo} label="Passport photo" />
+                    )}
+                    {meta.employerLetter && (
+                      <FileItem
+                        file={meta.employerLetter}
+                        label="Employer letter"
+                      />
+                    )}
+                  </>
+                ) : (
+                  <div className="text-sm text-gray-500">
+                    No documents uploaded.
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -147,30 +230,99 @@ export default function AppointmentDetail() {
             ))}
           </div>
 
-          <div className="mt-4 flex gap-2">
-            <button
-              onClick={() => nav("/dashboard")}
-              className="px-3 py-2 rounded-xl border"
-            >
-              Back
-            </button>
-            <button
-              onClick={onAdvance}
-              className="px-3 py-2 rounded-xl bg-green-600 text-white"
-              disabled={(() => {
-                const cur = (appt.status || "Submitted").toLowerCase();
-                // no next step for final completed states
-                if (cur.includes("success") || cur.includes("unsuccess"))
-                  return true;
-                // if upcoming and already 'ready', don't allow advancing to completed
-                if (isUpcoming && cur === "ready") return true;
-                return false;
-              })()}
-            >
-              Advance status
-            </button>
-          </div>
+          {isAdminView && (
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => nav("/dashboard")}
+                className="px-3 py-2 rounded-xl border"
+              >
+                Back
+              </button>
+              <button
+                onClick={onAdvance}
+                className="px-3 py-2 rounded-xl bg-green-600 text-white"
+                disabled={!canAdvance}
+                title={
+                  !canAdvance
+                    ? "Only an admin can update appointment status"
+                    : ""
+                }
+              >
+                {isAdminView &&
+                (appt.status || "").toLowerCase() === "submitted"
+                  ? "Accept"
+                  : "Advance status"}
+              </button>
+            </div>
+          )}
         </div>
+      </div>
+
+      {/* Feedback section - only show for completed appointments (successfully or unsuccessfully) */}
+      {(appt.status || "").toLowerCase().includes("completed") && (
+        <div className="mt-6 bg-white border rounded-2xl p-4">
+          <div className="font-medium mb-2">Rate your experience</div>
+          <FeedbackForm
+            existing={appt.feedback}
+            onSave={(fb) => {
+              // fb: { rating: number, comment: string }
+              addFeedback(appt.id, {
+                ...fb,
+                ts: Date.now(),
+                by: meta.fullName || "Anonymous",
+              });
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FeedbackForm({ existing, onSave }) {
+  const [rating, setRating] = React.useState(existing?.rating || 5);
+  const [comment, setComment] = React.useState(existing?.comment || "");
+  const [saving, setSaving] = React.useState(false);
+
+  const submit = () => {
+    setSaving(true);
+    try {
+      onSave({ rating, comment });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            onClick={() => setRating(n)}
+            className={`px-3 py-1 rounded-full ${
+              n <= rating ? "bg-yellow-400 text-white" : "bg-gray-100"
+            }`}
+          >
+            {n}
+          </button>
+        ))}
+        <div className="text-sm text-gray-500">{rating} / 5</div>
+      </div>
+      <textarea
+        className="w-full border rounded-lg p-2 h-24"
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        placeholder="Tell us about your experience (optional)"
+      />
+      <div className="flex gap-2">
+        <button
+          onClick={submit}
+          disabled={saving}
+          className="px-3 py-2 bg-blue-600 text-white rounded-xl"
+        >
+          {existing ? "Update feedback" : "Submit feedback"}
+        </button>
       </div>
     </div>
   );

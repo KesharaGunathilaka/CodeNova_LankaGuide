@@ -56,9 +56,26 @@ export default function Landing() {
 
   return (
     <div>
-      <section className="bg-gradient-to-b from-green-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 py-16 grid md:grid-cols-2 gap-8 items-center">
-          <div>
+      <section
+        className="relative bg-gradient-to-b from-green-50 to-white min-h-screen"
+        style={{
+          backgroundImage: "url('/images/Hero_image.png')",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center center",
+          backgroundSize: "cover",
+        }}
+      >
+        {/* subtle overlay to improve contrast */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 35%, rgba(255,255,255,0) 70%)",
+          }}
+        />
+
+        <div className="min-h-screen flex items-center relative z-10">
+          <div className="max-w-3xl mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
               One Portal. All Services,{" "}
               <span className="text-green-600">One Touch Away.</span>
@@ -67,31 +84,27 @@ export default function Landing() {
               Get what you need faster, without the queues or confusion. Search
               for a service or department below.
             </p>
+
             <div className="mt-6 relative">
-              <div className="flex items-center gap-2 bg-white rounded-2xl shadow p-2 border">
-                <Search className="w-5 h-5 ml-2" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="flex-1 outline-none p-2"
-                  placeholder="Search for a service... (e.g., Working Visa Extension)"
-                />
-              </div>
-              {results.length > 0 && (
-                <div className="absolute mt-2 w-full bg-white border rounded-2xl shadow-xl z-10">
-                  {results.map((r) => (
-                    <SearchResultItem key={r.type + r.id} item={r} />
-                  ))}
+              <div className="mx-auto w-full max-w-xl relative">
+                <div className="flex items-center gap-2 bg-white rounded-2xl shadow p-2 border">
+                  <Search className="w-5 h-5 ml-2" />
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="flex-1 outline-none p-2"
+                    placeholder="Search for a service... (e.g., Working Visa Extension)"
+                  />
                 </div>
-              )}
+                {results.length > 0 && (
+                  <div className="absolute left-0 right-0 mt-2 w-full bg-white border rounded-2xl shadow-xl z-10">
+                    {results.map((r) => (
+                      <SearchResultItem key={r.type + r.id} item={r} />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="relative">
-            <img
-              alt="people cheering"
-              className="rounded-3xl shadow-xl w-full object-cover"
-              src="/images/Hero Image.png"
-            />
           </div>
         </div>
       </section>
@@ -139,15 +152,16 @@ export default function Landing() {
           <div
             className="bg-white rounded-3xl border shadow-xl p-6 grid md:grid-cols-2 gap-6 items-center"
             style={{
-              backgroundImage: "url('/images/Meet_Guidey.png')",
+              // apply a uniform, slightly transparent white overlay over the illustration
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.4)), url('/images/Meet_Guidey.png')",
               backgroundRepeat: "no-repeat",
-              backgroundPosition: "left bottom",
-              backgroundSize: "38%",
+              backgroundPosition: "left 10%",
+              backgroundSize: "48%",
             }}
           >
             <div className="relative pb-16">
               <span className="inline-flex items-center gap-2 text-green-700 font-semibold">
-                {" "}
                 <Bot className="w-5 h-5" /> Meet Guidey
               </span>
               <h3 className="text-2xl font-bold mt-2">
