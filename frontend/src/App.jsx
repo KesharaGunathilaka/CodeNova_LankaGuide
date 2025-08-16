@@ -1,16 +1,15 @@
-import { useState } from 'react'
-import { Switch } from "@/components/ui/switch"
+import React from 'react'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
+import AppRoutes from './routes/AppRoutes'
+import { AppProvider } from './utils/appContext'
 
-
-
-function App() {
-
+export default function App(){
   return (
-    <>
-      <p className='italic'>hello worlds</p>
-      <Switch />
-    </>
+    <AppProvider>
+      <Navbar/>
+      <AppRoutes/>
+      <Footer/>
+    </AppProvider>
   )
 }
-
-export default App
