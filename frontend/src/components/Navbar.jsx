@@ -81,6 +81,9 @@ const ProfileMenu = () => {
   const { user, setUser } = useApp();
   const [open, setOpen] = useState(false);
   const nav = useNavigate();
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
+
   return (
     <div className="relative">
       <button
@@ -104,24 +107,33 @@ const ProfileMenu = () => {
                   <span className="font-medium">{user.username}</span>
                 </div>
                 <div className="border-t my-1" />
-                <Link
-                  to="/dashboard"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  to="/profile"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50"
-                >
-                  Profile
-                </Link>
+                {/* Only show dashboard/profile for non-admin users */}
+                {!isAdmin && (
+                  <>
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/profile"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50"
+                    >
+                      Profile
+                    </Link>
+                  </>
+                )}
                 <button
                   onClick={() => {
                     setUser(null);
                     setOpen(false);
+                    // Redirect to admin login if on admin page
+                    if (isAdmin) {
+                      nav("/admin/login");
+                    }
                   }}
                   className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50"
                 >
@@ -133,19 +145,23 @@ const ProfileMenu = () => {
                 <button
                   onClick={() => {
                     setOpen(false);
-                    nav("/login");
+                    // Redirect to admin login if on admin page
+                    nav(isAdmin ? "/admin/login" : "/login");
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50"
                 >
                   <LogIn className="w-4 h-4" /> Sign in
                 </button>
-                <Link
-                  to="/signup"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50"
-                >
-                  <User className="w-4 h-4" /> Create account
-                </Link>
+                {/* Only show create account for non-admin pages */}
+                {!isAdmin && (
+                  <Link
+                    to="/signup"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50"
+                  >
+                    <User className="w-4 h-4" /> Create account
+                  </Link>
+                )}
               </>
             )}
           </motion.div>
