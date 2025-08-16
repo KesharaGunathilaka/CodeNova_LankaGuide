@@ -17,6 +17,7 @@ import AppointmentDetail from "../pages/AppointmentDetail";
 import PaymentsPage from "../pages/Payment";
 import ProfilePage from "../pages/Profile";
 import ContactPage from "../pages/Contact";
+import ProtectedRoute from "../routes/ProtectedRoute";
 
 const NotFound = () => (
   <div className="max-w-3xl mx-auto px-4 py-16 text-center">
@@ -36,11 +37,27 @@ export default function AppRoutes() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboard />} />
+        <Route index element={
+          <ProtectedRoute role="officer">
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
         <Route path="login" element={<AdminLogin />} />
-        <Route path="analytics" element={<AdminAnalytics />} />
-        <Route path="feedbacks" element={<AdminFeedbacks />} />
-        <Route path="day/:date" element={<DayAppointments />} />
+        <Route path="analytics" element={
+          <ProtectedRoute role="officer">
+            <AdminAnalytics />
+          </ProtectedRoute>
+        } />
+        <Route path="feedbacks" element={
+          <ProtectedRoute role="officer">
+            <AdminFeedbacks />
+          </ProtectedRoute>
+        } />
+        <Route path="day/:date" element={
+          <ProtectedRoute role="officer">
+            <DayAppointments />
+          </ProtectedRoute>
+        } />
       </Route>
       <Route path="/departments" element={<DepartmentsIndex />} />
       <Route path="/departments/:id" element={<DepartmentDetail />} />

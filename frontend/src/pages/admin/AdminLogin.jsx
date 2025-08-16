@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ShieldCheck } from 'lucide-react'
 import { useApp } from '../../utils/appContext'
 
@@ -26,13 +26,43 @@ const AuthShell = ({ title, subtitle, children }) => (
 export default function Login() {
     const { setUser } = useApp()
     const nav = useNavigate()
-    const [form, setForm] = useState({ username: '', password: '' })
-    const submit = (e) => { e.preventDefault(); setUser({ username: form.username }); nav('/admin') }
+    const [form, setForm] = useState({ email: '', password: '' })
+
+    const submit = async (e) => {
+        e.preventDefault()
+        try {
+            const res = await fetch('http://localhost:5000/api/auth/officer/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ email: form.email, password: form.password })
+            })
+
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.message || 'Login failed')
+
+            setUser({ email: form.email, role: 'officer', accessToken: data.accessToken })
+            nav('/admin')
+        } catch (err) {
+            alert(err.message)
+        }
+    }
+
     return (
         <AuthShell title="Welcome back" subtitle="Sign in to continue">
             <form onSubmit={submit} className="space-y-3">
-                <Input label="Username" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} />
-                <Input type="password" label="Password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+                <Input
+                    label="Email"
+                    type="email"
+                    value={form.email}
+                    onChange={e => setForm({ ...form, email: e.target.value })}
+                />
+                <Input
+                    type="password"
+                    label="Password"
+                    value={form.password}
+                    onChange={e => setForm({ ...form, password: e.target.value })}
+                />
                 <button className="w-full py-2 rounded-xl bg-green-600 text-white">Sign in</button>
             </form>
         </AuthShell>
