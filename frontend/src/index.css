@@ -1,5 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html, body, #root { height: 100%; }
+body { @apply bg-white text-gray-900; }
 
 @custom-variant dark (&:is(.dark *));
 
