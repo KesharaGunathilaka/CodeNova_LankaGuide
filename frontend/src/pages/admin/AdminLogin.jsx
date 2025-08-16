@@ -57,6 +57,8 @@ export default function Login() {
             setUser({ 
                 id: result.officer.id, 
                 email: result.officer.email,
+                name: result.officer.name,
+                username: result.officer.name, // For compatibility with existing navbar
                 type: 'officer' 
             });
             nav('/admin');

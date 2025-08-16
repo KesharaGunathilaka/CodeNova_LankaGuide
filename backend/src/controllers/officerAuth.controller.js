@@ -2,7 +2,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Officer from "../models/officer.js";
 import RefreshToken from "../services/RefreshToken.js";
-import { newJTI, signAccessToken, signRefreshToken } from "../utils/generateTokens.js";
+import {
+  newJTI,
+  signAccessToken,
+  signRefreshToken,
+} from "../utils/generateTokens.js";
 
 const COOKIE_SECURE = String(process.env.COOKIE_SECURE) === "true";
 const isProd = process.env.NODE_ENV === "production";
@@ -29,13 +33,17 @@ export const loginOfficer = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password)
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
 
     const officer = await Officer.findOne({ email });
-    if (!officer) return res.status(401).json({ message: "Invalid credentials" });
+    if (!officer)
+      return res.status(401).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, officer.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    if (!isMatch)
+      return res.status(401).json({ message: "Invalid credentials" });
 
     // Generate tokens
     const jti = newJTI();
@@ -57,7 +65,11 @@ export const loginOfficer = async (req, res, next) => {
 
     setAuthCookies(res, accessToken, refreshToken, refreshMaxAgeMs);
 
-    res.json({ officer: { id: officer._id, email: officer.email }, accessToken, refreshToken });
+    res.json({
+      officer: { id: officer._id, email: officer.email, name: officer.name },
+      accessToken,
+      refreshToken,
+    });
   } catch (error) {
     next(error);
   }
